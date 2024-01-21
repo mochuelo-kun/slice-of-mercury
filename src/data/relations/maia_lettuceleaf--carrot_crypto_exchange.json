@@ -3,5 +3,6 @@
     "x_node_type": "character",
     "y_node_id": "carrot_crypto_exchange",
     "y_node_type": "location",
-    "description": "Maia Lettuceleaf is the lead carrot genomics expert at Carrot Crypto Exchange"
+    "description": "Maia Lettuceleaf is the lead carrot genomics expert at Carrot Crypto Exchange",
+    "importance": 8
 }

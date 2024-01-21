@@ -3,5 +3,6 @@
     "x_node_type": "character",
     "y_node_id": "bagel_diffusion",
     "y_node_type": "location",
-    "description": "Dandy Gordon is the head bagel-crafting master at Bagel Diffusion"
+    "description": "Dandy Gordon is the head bagel-crafting master at Bagel Diffusion",
+    "importance": 10
 }

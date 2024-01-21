@@ -3,5 +3,6 @@
     "x_node_type": "character",
     "y_node_id": "vanishing_point_luxury_gallery",
     "y_node_type": "location",
-    "description": "Hyperion Bonner is the founder of the Vanishing Point Luxury Gallery"
+    "description": "Hyperion Bonner is the founder of the Vanishing Point Luxury Gallery",
+    "importance": 9
 }

@@ -3,5 +3,6 @@
     "x_node_type": "character",
     "y_node_id": "cloud_catalog",
     "y_node_type": "location",
-    "description": "Arklen Curtiz owns and operates the Cloud Catalog."
+    "description": "Arklen Curtiz owns and operates the Cloud Catalog.",
+    "importance": 10
 }

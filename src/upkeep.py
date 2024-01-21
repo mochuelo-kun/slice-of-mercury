@@ -46,7 +46,7 @@ def normalize_location_ids(locations: list[Location]) -> list[Location]:
     return normalized_locations
 
 @dataclass
-class NewElementsCheck:
+class NewElementsAnalysis:
     new_characters: list[Character] = Field(
         description="List of any new characters from the NEW_STORY_VIGNETTE (above) that are not already in the EXISTING_CHARACTER_LIST (above)"
     )
@@ -60,7 +60,7 @@ class NewElementsCheck:
 def check_for_new_elements(
     # actor: interlab.actor.ActorBase,
     vignette: str,
-) -> NewElementsCheck:
+) -> NewElementsAnalysis:
     logger.info("### Checking story vignette for new world elements...")
 
     # TODO stronger input type, e.g. Event? Vignette?
@@ -94,7 +94,7 @@ def check_for_new_elements(
 """)
     new_elements_check_results = archivist_editor.query(
         "Did any new characters, locations, or relations that are not catalogued in the directory yet appear in the latest vignette? If so please format what we know about them for the directory. If the character does not have a full name, please create one for them, using a similar style to existing names.",
-        expected_type=NewElementsCheck,
+        expected_type=NewElementsAnalysis,
     )
 
     logger.debug("new_elements_check_results")

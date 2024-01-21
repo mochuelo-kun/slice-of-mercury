@@ -6,8 +6,8 @@ import dotenv
 dotenv.load_dotenv()
 
 from logging_config import logger
-from turn import do_daily_turn
+from turn import play_rounds
 
 def start():
     logger.info("# STARTING a new run")
-    do_daily_turn()
+    play_rounds()

@@ -78,24 +78,24 @@ def normalize_relation_ids(
 
 @dataclass
 class NewElementsAnalysis:
+    features_existing_characters: list[Character] = Field(
+        description="List of any characters appearing in the NEW_STORY_VIGNETTE (above) that are already recorded in the EXISTING_CHARACTER_LIST (above)"
+    )
     new_characters: list[Character] = Field(
         description="List of any new characters from the NEW_STORY_VIGNETTE (above) that are not already in the EXISTING_CHARACTER_LIST (above)"
     )
     new_locations: list[Location] = Field(
         description="List of any new locations from the NEW_STORY_VIGNETTE (above) that are not already in the EXISTING_LOCATION_LIST (above)"
     )
+    features_existing_locations: list[Location] = Field(
+        description="List of any locations appearing in the NEW_STORY_VIGNETTE (above) that are already recorded in the EXISTING_LOCATION_LIST (above)"
+    )
     new_relations: list[Relation] = Field(
         description="List of any new relations from the NEW_STORY_VIGNETTE (above) that are not already in the EXISTING_RELATION_LIST (above)"
     )
-    # new_characters: list[Character] = Field(
-    #     description="List of any new characters from the NEW_STORY_VIGNETTE (above) that are not already in the EXISTING_CHARACTER_LIST (above)"
-    # )
-    # new_locations: list[Location] = Field(
-    #     description="List of any new locations from the NEW_STORY_VIGNETTE (above) that are not already in the EXISTING_LOCATION_LIST (above)"
-    # )
-    # new_relations: list[Relation] = Field(
-    #     description="List of any new relations from the NEW_STORY_VIGNETTE (above) that are not already in the EXISTING_RELATION_LIST (above)"
-    # )
+    features_existing_relations: list[Relation] = Field(
+        description="List of any relations appearing in the NEW_STORY_VIGNETTE (above) that are already recorded in the EXISTING_RELATION_LIST (above)"
+    )
 
 def check_for_new_elements(
     # actor: interlab.actor.ActorBase,

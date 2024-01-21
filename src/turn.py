@@ -1,9 +1,10 @@
 import json
+import random
 
 import langchain
 import interlab
-import random
 from pydantic.dataclasses import dataclass
+from fastapi.encoders import jsonable_encoder
 
 from datastore import get_characters, get_character_orbit
 from logging_config import logger
@@ -39,7 +40,7 @@ The Cyberfuturist stories taking place in the "Biodome Protopia" cinematic unive
 
 @dataclass
 class CharacterDevelopmentResult:
-    character: CharacterOrbit
+    focus_character: CharacterOrbit
     vignette: str
     analysis: NewElementsAnalysis
 
@@ -107,7 +108,7 @@ def play_round(
         character_vignettes.append((character, character_vignette))
         new_elements_analysis = check_for_new_elements(character_vignette)
         character_developments.append(CharacterDevelopmentResult(
-            character=character_orbit,
+            focus_character=character_orbit,
             vignette=character_vignette,
             analysis=new_elements_analysis,
         ))
@@ -122,4 +123,5 @@ def play_rounds(
         logger.info(f"## BEGINNING ROUND: {round_n}")
         log_the_world_so_far()
         character_developments = play_round()
-        logger.info(f"### COMPLETED ROUND: {round_n}\nData results:\n```{json.dumps(character_developments.__dict__, indent=4)}```")
+        # TODO: is there a better way of doing this than importing fastapi?
+        logger.info(f"### COMPLETED ROUND: {round_n}\nData results:\n```{json.dumps(jsonable_encoder(character_developments), indent=4)}```")

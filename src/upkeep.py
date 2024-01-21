@@ -1,17 +1,20 @@
-import logging
-
-# from interlab.actor.base import ActorBase
 import langchain
 import interlab
 from pydantic.dataclasses import dataclass, Field
 
 from datastore import (
     get_characters,
-    save_character,
+    save_characters,
     get_locations,
-    save_location,
+    save_locations,
     get_relations,
-    save_relation,
+    save_relations,
+)
+from logging_config import logger
+from logging_extras import (
+    format_character_list_for_logs,
+    format_location_list_for_logs,
+    format_relation_list_for_logs,
 )
 from schema import Character, Location, Relation
 from util import str_to_safe_id
@@ -21,6 +24,26 @@ gpt4turbo = langchain.chat_models.ChatOpenAI(model_name='gpt-4-1106-preview')
 
 ARCHIVIST_EDITOR_PROMPT = """You are an archivist trying to keep up a database directory of information about characters, locations, relations, etc. in a fictional world. Your job is to review new vignettes written by the creative director, log any new elements, and give feedback when new elements conflict with existing ones."""
 
+def normalize_character_ids(characters: list[Character]) -> list[Character]:
+    normalized_characters: list[Character] = []
+    for character in characters:
+        expected_id = str_to_safe_id(character.name)
+        if character.id != expected_id:
+            logger.debug(f"LLM generated ID ({character.id}) does not match expected ID form ({expected_id}). Overwriting to expected.")
+            character.id = expected_id
+        normalized_characters.append(character)
+    return normalized_characters
+
+def normalize_location_ids(locations: list[Location]) -> list[Location]:
+    normalized_locations: list[location] = []
+    for location in locations:
+        # quick ID formatting check
+        expected_id = str_to_safe_id(location.name)
+        if location.id != expected_id:
+            logger.debug(f"LLM generated ID ({location.id}) does not match expected ID form ({expected_id}). Overwriting to expected.")
+            location.id = expected_id
+        normalized_locations.append(location)
+    return normalized_locations
 
 @dataclass
 class NewElementsCheck:
@@ -34,11 +57,12 @@ class NewElementsCheck:
         description="List of any new relations from the NEW_STORY_VIGNETTE (above) that are not already in the EXISTING_RELATION_LIST (above)"
     )
 
-def check_for_new_characters(
+def check_for_new_elements(
     # actor: interlab.actor.ActorBase,
     vignette: str,
-# ) -> list[Character]:
-) -> list[NewElementsCheck]:
+) -> NewElementsCheck:
+    logger.info("### Checking story vignette for new world elements...")
+
     # TODO stronger input type, e.g. Event? Vignette?
     archivist_editor = interlab.actor.OneShotLLMActor(
         name="ArchivistEditor",
@@ -73,67 +97,39 @@ def check_for_new_characters(
         expected_type=NewElementsCheck,
     )
 
-    logging.info("new_elements_check_results")
-    logging.info(new_elements_check_results)
-
-    # logging.info("new_elements_check_results.data")
-    # logging.info(new_elements_check_results.data)
-
-    # TODO save the new data
-    # exit()
+    logger.debug("new_elements_check_results")
+    logger.debug(new_elements_check_results)
 
     if len(new_elements_check_results.new_characters) == 0:
-        logging.info("No new characters detected.")
-        return []
+        logger.info("No new characters detected.")
     else:
         new_characters = new_elements_check_results.new_characters
-        for character in new_characters:
-            logging.info("### New character detected!")
-            logging.info(character)
-            
-            # quick ID formatting check
-            expected_id = str_to_safe_id(character.name)
-            if character.id != expected_id:
-                logging.warning(f"LLM generated ID ({character.id}) does not match expected ID form ({expected_id}). Overwriting to expected.")
-                character.id = expected_id
-            
-            # TODO/TBD: move saving to safer location?
-            save_character(character)
+        new_characters = normalize_character_ids(new_characters)
+        logger.info(f"New characters detected!\n{format_character_list_for_logs(new_characters)}")
+        save_characters(new_characters)    
     
     if len(new_elements_check_results.new_locations) == 0:
-        logging.info("No new locations detected.")
-        return []
+        logger.info("No new locations detected.")
     else:
         new_locations = new_elements_check_results.new_locations
-        for location in new_locations:
-            logging.info("### New location detected!")
-            logging.info(location)
-            
-            # quick ID formatting check
-            expected_id = str_to_safe_id(location.name)
-            if location.id != expected_id:
-                logging.warning(f"LLM generated ID ({location.id}) does not match expected ID form ({expected_id}). Overwriting to expected.")
-                location.id = expected_id
-            
-            # TODO/TBD: move saving to safer location?
-            save_location(location)
+        new_locations = new_elements_check_results.new_locations
+        new_locations = normalize_location_ids(new_locations)
+        logger.info(f"New locations detected!\n{format_location_list_for_logs(new_locations)}")
+        # TODO/TBD: move saving to safer location?
+        save_locations(new_locations)
         
     if len(new_elements_check_results.new_relations) == 0:
-        logging.info("No new relations detected.")
-        return []
+        logger.info("No new relations detected.")
     else:
         new_relations = new_elements_check_results.new_relations
-        for relation in new_relations:
-            logging.info("### New relation detected!")
-            logging.info(relation)
-
-            # TODO: do we need to double check that node IDs are real?
-            
-            # TODO/TBD: move saving to safer relation?
-            save_relation(relation)
+        new_relations = new_elements_check_results.new_relations
+        # TODO: do we need to double check that node IDs are real?
+        logger.info(f"New relations detected!\n{format_relation_list_for_logs(new_relations)}")
+        # TODO/TBD: move saving to safer location?
+        save_relations(new_relations)
         
     
-    # return new_character_check_results.data
+    return new_elements_check_results
 
 
 # TODO: how to make a "does this all make sense/cohere" check?

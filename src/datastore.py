@@ -1,7 +1,7 @@
 import json
-import logging
 from pathlib import Path
 
+from logging_config import logger
 from schema import (
     Character,
     CharacterOrbit,
@@ -25,7 +25,7 @@ def get_characters(
     characters: list[Character] = []
     character_filepaths = CHARACTER_DIR.glob("*.json")
     for filepath in character_filepaths:
-        logging.debug(f"Loading character from: {filepath}")
+        logger.debug(f"Loading character from: {filepath}")
         with open(filepath) as f:
             data = json.load(f)
         characters.append(Character(**data))
@@ -48,9 +48,9 @@ def get_character(
     id: str
 ) -> Character | None:
     filepath = CHARACTER_DIR / f"{id}.json"
-    logging.debug(f"Loading character from: {filepath}")
+    logger.debug(f"Loading character from: {filepath}")
     if not filepath.exists():
-        logging.warning(f"{filepath} not found.")
+        logger.warning(f"{filepath} not found.")
         return None
     with open(filepath) as f:
         data = json.load(f)
@@ -61,7 +61,7 @@ def save_character(
     character: Character,
 ) -> Character:
     filepath = CHARACTER_DIR / f"{character.id}.json"
-    logging.debug(f"Saving character to: {filepath}")
+    logger.debug(f"Saving character to: {filepath}")
     with open(filepath, "w") as file:
         json.dump(
             character.__dict__,
@@ -69,6 +69,10 @@ def save_character(
             ensure_ascii=False,
             indent=4,
         )
+
+def save_characters(characters: list[Character]) -> list[Character]:
+    for character in characters:
+        save_character(character)
     
 
 # -------------- LOCATION -----------------
@@ -80,7 +84,7 @@ def get_locations(
     locations: list[Location] = []
     location_filepaths = LOCATION_DIR.glob("*.json")
     for filepath in location_filepaths:
-        logging.debug(f"Loading location from: {filepath}")
+        logger.debug(f"Loading location from: {filepath}")
         with open(filepath) as f:
             data = json.load(f)
         locations.append(Location(**data))
@@ -96,23 +100,14 @@ def get_locations(
             if l.name in name_in
         ]
     return locations
-    # return [Location(**l) for l in all_locations]
 
 def get_location(
     id: str
 ) -> Location | None:
-    # matching_locations = [
-    #     l for l in all_locations
-    #         if l["id"] == id
-    # ]
-    # if len(matching_locations) == 0:
-    #     return None
-    # # return matching_locations[0]
-    # return Location(**matching_locations[0])
     filepath = LOCATION_DIR / f"{id}.json"
-    logging.debug(f"Loading location from: {filepath}")
+    logger.debug(f"Loading location from: {filepath}")
     if not filepath.exists():
-        logging.warning(f"{filepath} not found.")
+        logger.warning(f"{filepath} not found.")
         return None
     with open(filepath) as f:
         data = json.load(f)
@@ -122,7 +117,7 @@ def save_location(
     location: Location,
 ) -> Location:
     filepath = LOCATION_DIR / f"{location.id}.json"
-    logging.debug(f"Saving location to: {filepath}")
+    logger.debug(f"Saving location to: {filepath}")
     with open(filepath, "w") as file:
         json.dump(
             location.__dict__,
@@ -131,26 +126,29 @@ def save_location(
             indent=4,
         )
 
+def save_locations(locations: list[Location]) -> list[Location]:
+    for location in locations:
+        save_location(location)
+
 
 # -------------- RELATION -----------------
 def get_relations(
     x_node_id_eq: str | None = None,
     # name_in: list[str] | None = None,
 ) -> list[Relation]:
-    # relations = all_relations
     relations: list[Relation] = []
     relation_filepaths = RELATION_DIR.glob("*.json")
     for filepath in relation_filepaths:
-        logging.debug(f"Loading relation from: {filepath}")
+        logger.debug(f"Loading relation from: {filepath}")
         with open(filepath) as f:
             data = json.load(f)
         relations.append(Relation(**data))
 
-    logging.debug("all relations")
-    logging.debug(relations)
+    logger.debug("all relations")
+    logger.debug(relations)
     if x_node_id_eq is not None:
-        logging.debug(f"filter for x_node_id_eq={x_node_id_eq}")
-        logging.debug(str([
+        logger.debug(f"filter for x_node_id_eq={x_node_id_eq}")
+        logger.debug(str([
             (r.x_node_id, r.x_node_id == x_node_id_eq)
             for r in relations
         ]))
@@ -158,15 +156,14 @@ def get_relations(
             r for r in relations
             if r.x_node_id == x_node_id_eq
         ]
-        logging.debug(f"filtered {relations}")
+        logger.debug(f"filtered {relations}")
     return relations
-    # return [Relation(**r) for r in relations]
 
 def save_relation(
     relation: Relation,
 ) -> Relation:
     filepath = RELATION_DIR / f"{relation.x_node_id}--{relation.y_node_id}.json"
-    logging.debug(f"Saving relation to: {filepath}")
+    logger.debug(f"Saving relation to: {filepath}")
     with open(filepath, "w") as file:
         json.dump(
             relation.__dict__,
@@ -174,6 +171,11 @@ def save_relation(
             ensure_ascii=False,
             indent=4,
         )
+
+def save_relations(relations: list[Relation]) -> list[Relation]:
+    for relation in relations:
+        save_relation(relation)
+
 
 # -------------- CHARACTER ORBIT -----------------
 

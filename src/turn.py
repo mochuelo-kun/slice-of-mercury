@@ -14,7 +14,7 @@ from upkeep import check_for_new_elements, NewElementsAnalysis
 gpt35 = langchain.chat_models.ChatOpenAI(model_name='gpt-3.5-turbo-1106')
 gpt4turbo = langchain.chat_models.ChatOpenAI(model_name='gpt-4-1106-preview')
 
-DEFAULT_NUM_ROUNDS = 2
+DEFAULT_NUM_ROUNDS = 5
 DEFAULT_NUM_CHARACTERS_ACTING_PER_ROUND = 3
 
 # (before round)
@@ -22,12 +22,20 @@ DEFAULT_NUM_CHARACTERS_ACTING_PER_ROUND = 3
 
 # - load setting and create base agent?
 #   - TBD: new base agent per round? or per LLM action?
+# DIRECTOR_BASE_PROMPT = """
+# You are a creative mastermind building a world and designing and directing the characters within it.
+
+# You thrive on creativity and a bit of spice, but also feel strongly that worlds should make sense and be realistic, pragmatic, and fleshed out to be as whole as possible. The little details (who provides the services that make the settlement work, what are those services, where do people eat, drink, and live -- e.g. where does the wife of the night janitor for the space port go to buy coffee and donuts, and who is the barista's childhood friend? (NOTE: these are examples, not instructions)) matter as much as the grand stories (major crises or events). In other words, the NPCs and their lives, locations, and relations, matter as much as the protagonists of the story.
+# """
 DIRECTOR_BASE_PROMPT = """
 You are a creative mastermind building a world and designing and directing the characters within it.
 
-You thrive on creativity and a bit of spice, but also feel strongly that worlds should make sense and be realistic, pragmatic, and fleshed out to be as whole as possible. The little details (who provides the services that make the settlement work, what are those services, where do people eat, drink, and live -- e.g. where does the wife of the night janitor for the space port go to buy coffee and donuts, and who is the barista's childhood friend? (NOTE: these are examples, not instructions)) matter as much as the grand stories (major crises or events). In other words, the NPCs and their lives, locations, and relations, matter as much as the protagonists of the story.
+You thrive on creativity and a bit of spice, but also feel strongly that worlds should make sense and be realistic, pragmatic, and fleshed out to be as whole as possible. The little details (for example, who provides the services that make the settlement work, what are those services, where do people eat, drink, and live) matter as much as the grand stories (major crises or events). In other words, the NPCs and their lives, locations, and relations, matter as much as the protagonists of the story.
 """
 
+SETTING_PROMPT = """
+The Cyberfuturist stories taking place in the "Biodome Protopia" cinematic universe are focused on the main commercial thoroughfare, Sunrise Boulevard, which houses storefronts, offices, and commercial venues for a number of innovative and futuristic businesses. Within the biodome, the characters all live in nearby communes which share chores for successful collective living. The biodome is situated in the Sonoran Desert, somewhere near Imperial Valley and the Coachella Canal, and the major plotlines take place around the years 2049-2052. Technology has developed since the current day, but within the realm of plausibility.
+"""
 
 @dataclass
 class CharacterDevelopmentResult:
@@ -74,13 +82,14 @@ def play_round(
             system_prompt=DIRECTOR_BASE_PROMPT,
         )
 
-        # A NEW DAY DAWNS
+        fearless_director.observe(f"## Overall Setting\n{SETTING_PROMPT}")
+
         # TODO: daily hooks could go here
-        DAILY_INFO_HOOK = """
-        ## DAY 12
-        It is a typical tuesday. There is a chance of rain in the afternoon.
-        """
-        fearless_director.observe(DAILY_INFO_HOOK)
+        # DAILY_INFO_HOOK = """
+        # ## DAY 12
+        # It is a typical tuesday. There is a chance of rain in the afternoon.
+        # """
+        # fearless_director.observe(DAILY_INFO_HOOK)
 
         fearless_director.observe(
             f"We turn our attention to the story of {character.name}"

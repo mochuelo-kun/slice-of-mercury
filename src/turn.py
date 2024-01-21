@@ -3,7 +3,7 @@ import logging
 import langchain
 import interlab
 
-from datastore import get_characters
+from datastore import get_characters, get_character_orbit
 from schema import Character
 from upkeep import check_for_new_characters
 
@@ -37,6 +37,10 @@ def do_daily_turn():
     character_vignettes: list[(Character, str)] = []
 
     for character in characters:
+        character_orbit = get_character_orbit(character)
+        # logging.info(character_orbit)
+        # exit()
+        
         # refresh the director LLM to avoid confusion between characters
         fearless_director = interlab.actor.OneShotLLMActor(
             name="FearlessDirector",
@@ -56,13 +60,19 @@ def do_daily_turn():
         fearless_director.observe(
             f"We turn our attention to the story of {character.name}"
         )
+        # fearless_director.observe(
+        #     f""" --- {character.name} ---
+        #     {character.description}"""
+        # )
         fearless_director.observe(
             f""" --- {character.name} ---
-            {character.description}"""
+            {character_orbit}"""
         )
         # ACTION_PROMPT = """
         # """
-        character_vignette = fearless_director.query("Tell a story about what this character did today, where they went, who they met, etc.")
+        
+        character_vignette = fearless_director.query("Write a very short plot synopsis of an interesting episode in which this character appears")
+        # character_vignette = fearless_director.query("Tell a story about what this character did today, where they went, who they met, etc.")
         # character_vignette = fearless_director.query("Describe what this character did today, where they went, who they met, etc. Narrate 2-3 short vignettes at different times of day (e.g. morning, afternoon, evening, night).")
 
         logging.info(character_vignette)

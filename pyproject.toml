@@ -20,4 +20,5 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 start = "src.run:start"
+start_server = "src.api.main:start_server"
 # context_query = "notebooks.context_query_poc:start"

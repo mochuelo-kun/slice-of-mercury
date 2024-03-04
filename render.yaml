@@ -2,8 +2,24 @@ services:
   # A Docker web service
   - type: web
     name: slice-of-mercury-fastapi
+    region: oregon
     runtime: python
     plan: free
     autoDeploy: false
     buildCommand: poetry install
     startCommand: poetry run start_server
+
+databases:
+  - name: slice-of-mercury-postgres
+    region: oregon
+    plan: free
+    databaseName: slice_of_mercury
+    user: db_user
+    # ipAllowList: [] # internal only
+    # ipAllowList: # optional (defaults to allow all)
+    #   - source: 203.0.113.4/30
+    #     description: office
+    #   - source: 198.51.100.1
+    #     description: home
+    # readReplicas: # optional (defaults to no replicas)
+    #   - name: prod-replica
